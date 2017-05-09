@@ -5,7 +5,7 @@
 #include <vector>
 #include <sstream>
 
-// version 1.1
+
 
 using namespace std;
 
@@ -13,7 +13,6 @@ const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 800;
 
 
-int  f = 2, last = -1;
 SDL_Window *window = NULL;
 SDL_Surface *image = NULL;
 SDL_Texture *texture = NULL;
@@ -26,27 +25,13 @@ SDL_Texture *loadTexture(string path);
 
 
 
-
 SDL_Texture *buttons = NULL;
 SDL_Texture *pieces = NULL;
 
 class button {
 public:
     button(int x=0, int y=0, int type=2) {
-        buttonSize.x = 0;
-        buttonSize.y = 0;
-        buttonSize.w = 500;
-        buttonSize.h = 200;
-
-        if (type == 2) buttonSize.y += 200;
-        else if(type == 3) buttonSize.y += 400;
-
-        buttonPos.x = x - 125;
-        buttonPos.y = y - 40;
-        buttonPos.w = 250;
-        buttonPos.h = 80;
-
-        render();
+        init(x,y,type);
     }
     void render() {
         SDL_Rect background1 = {0,0,800,800};
@@ -131,6 +116,7 @@ void close() {
 
     IMG_Quit();
     SDL_Quit();
+    TTF_Quit();
 
 }
 
@@ -294,7 +280,7 @@ public:
                 desk[last.y][last.x].color = 0;
                 d = desk[last.y][last.x].d;
                 desk[last.y][last.x].d = 0;
-                desk[y][x].color = player;
+                color = player;
                 g = 1;
                 for (int i = 0; i < 8; i++)
                     for (int e = 0; e < 8; e++) {
@@ -361,6 +347,8 @@ public:
                 }
         }
         else { // damka
+
+            //right-up
             int a,b;
             a = x;
             b = y;
@@ -369,12 +357,25 @@ public:
                 b--;
             }
             if(a>1 && b>1 && desk[b-1][a-1].color != player && desk[b-2][a-2].color==0)  {
-                if (!silent) desk[b-2][a-2].selected = 1;
+                if (!silent) {
+                    int i = 0;
+                    while(b-2-i >=0 && a-2-i >=0 && desk[b-2-i][a-2-i].color==0) {
+                        desk[b-2-i][a-2-i].selected = 1;
+                        i++;
+                    }
+                }
                 desk[y][x].s = 1;
-                desk[b-2][a-2].last.x = x;
-                desk[b-2][a-2].last.y = y;
+                int i = 0;
+                while(b-2-i >=0 && a-2-i >=0 && desk[b-2-i][a-2-i].color==0) {
+                    desk[b-2-i][a-2-i].last.x = x;
+                    desk[b-2-i][a-2-i].last.y = y;
+                    i++;
+                }
                 for (int i = 0; i < 8; i++) for (int e = 0; e < 8; e++) desk[i][e].h = 1;
             }
+
+            //left-up
+
             a = x;
             b = y;
             while(a < 6 && b > 1 && desk[b-1][a+1].color == 0) {
@@ -382,13 +383,26 @@ public:
                 b--;
             }
             if(a<6 && b>1 && desk[b-1][a+1].color != player && desk[b-2][a+2].color==0)  {
-                if (!silent) desk[b-2][a+2].selected = 1;
+                if (!silent) {
+                    int i = 0;
+                    while(b-2-i >=0 && a+2+i <=7 && desk[b-2-i][a+2+i].color==0) {
+                        desk[b-2-i][a+2+i].selected = 1;
+                        i++;
+                    }
+                }
                 desk[y][x].s = 1;
-                desk[b-2][a+2].last.x = x;
-                desk[b-2][a+2].last.y = y;
+                int i = 0;
+                while(b-2-i >=0 && a+2+i <=7 && desk[b-2-i][a+2+i].color==0) {
+                    desk[b-2-i][a+2+i].last.x = x;
+                    desk[b-2-i][a+2+i].last.y = y;
+                    i++;
+                }
+
                 for (int i = 0; i < 8; i++) for (int e = 0; e < 8; e++) desk[i][e].h = 1;
             }
-            // -------------------------------------------
+
+            // right-down
+
             a = x;
             b = y;
             while(a > 1 && b < 6  && desk[b+1][a-1].color == 0) {
@@ -396,12 +410,25 @@ public:
                 b++;
             }
             if(a>1 && b<6 && desk[b+1][a-1].color != player && desk[b+2][a-2].color==0)  {
-                if (!silent) desk[b+2][a-2].selected = 1;
+                if (!silent) {
+                    int i = 0;
+                    while(b+2+i <=7 && a-2-i >=0 && desk[b+2+i][a-2-i].color==0) {
+                        desk[b+2+i][a-2-i].selected = 1;
+                        i++;
+                    }
+                }
                 desk[y][x].s = 1;
-                desk[b+2][a-2].last.x = x;
-                desk[b+2][a-2].last.y = y;
+                int i = 0;
+                while(b+2+i <=7 && a-2-i >=0 && desk[b+2+i][a-2-i].color==0) {
+                    desk[b+2+i][a-2-i].last.x = x;
+                    desk[b+2+i][a-2-i].last.y = y;
+                    i++;
+                }
                 for (int i = 0; i < 8; i++) for (int e = 0; e < 8; e++) desk[i][e].h = 1;
             }
+
+            // left-down
+
             a = x;
             b = y;
             while(a < 6 && b < 6 && desk[b+1][a+1].color == 0) {
@@ -409,10 +436,20 @@ public:
                 b++;
             }
             if(a<6 && b<6 && desk[b+1][a+1].color != player && desk[b+2][a+2].color==0)  {
-                if (!silent) desk[b+2][a+2].selected = 1;
+                if (!silent) {
+                    int i = 0;
+                    while(b+2+i <=7 && a+2+i <=7 && desk[b+2+i][a+2+i].color==0) {
+                        desk[b+2+i][a+2+i].selected = 1;
+                        i++;
+                    }
+                }
                 desk[y][x].s = 1;
-                desk[b+2][a+2].last.x = x;
-                desk[b+2][a+2].last.y = y;
+                int i = 0;
+                while(b+2+i <=7 && a+2+i <=7 && desk[b+2+i][a+2+i].color==0) {
+                    desk[b+2+i][a+2+i].last.x = x;
+                    desk[b+2+i][a+2+i].last.y = y;
+                    i++;
+                }
                 for (int i = 0; i < 8; i++) for (int e = 0; e < 8; e++) desk[i][e].h = 1;
             }
         }
@@ -460,6 +497,8 @@ public:
         for (j = 0; j < 8; j += 2) desk[7][j].color  = 1;
         for (j = 1; j < 8; j += 2) desk[6][j].color  = 1;
         for (j = 0; j < 8; j += 2) desk[5][j].color  = 1;
+
+
 
         SDL_RenderClear(renderer);
         renderDesk();
@@ -545,7 +584,8 @@ public:
         }
     }
     void nextTurn() {
-
+        for (int i = 0; i < 8; i++) desk[0][i].vdamke(0);
+        for (int i = 0; i < 8; i++) desk[7][i].vdamke(7);
         if (eat) {
             eat = 0;
             if (player == 1) white++;
@@ -569,8 +609,6 @@ public:
                         desk[i][e].eatf(desk, player, e, i, 1);
             for (int i = 0; i < 8; i++) for (int e = 0; e < 8; e++) if (desk[i][e].s) eat = 1;
         }
-        for (int i = 0; i < 8; i++) desk[0][i].vdamke(0);
-        for (int i = 0; i < 8; i++) desk[7][i].vdamke(7);
         if (white == 12 || black == 12) end();
     }
     void end(){
