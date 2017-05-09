@@ -12,6 +12,7 @@ using namespace std;
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 800;
 
+
 int  f = 2, last = -1;
 SDL_Window *window = NULL;
 SDL_Surface *image = NULL;
