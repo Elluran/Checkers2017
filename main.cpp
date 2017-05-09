@@ -23,6 +23,7 @@ SDL_Texture *textTexture = NULL;
 TTF_Font *font = NULL;
 SDL_Texture *loadTexture(string path);
 
+
 SDL_Texture *buttons = NULL;
 SDL_Texture *pieces = NULL;
 
